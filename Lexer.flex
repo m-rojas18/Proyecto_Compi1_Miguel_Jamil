@@ -6,11 +6,10 @@
 %unicode
 %line
 %column
-%%
 
-//Reglas Lexicas
-/*Simbolos*/
-letra = [a-zA-Z] | "_"
+//Definiciones Regulares
+
+letra = [a-zA-Z] = "_"
 digito = [0-9]
 espacio = [" ",\t,\r,\n]+
 
@@ -35,20 +34,65 @@ der_par = ")"
 coma = ","
 izq_llave = "{"
 der_llave = "}"
+//Revisar si se necesitan estos brackets []
 
-//Token de Asignación
-igual = "="
+/*Token de Asignación*/
+asignacion = "="
 
+/*Incrementos*/
+autoIncrementos = "++" | "--"
+/*Operador condicional */
+//Crear constchar y conststr
 //Buscar expresion regular para caracteres especiales
-//Palabras Reservadas
-/* char, if, else, else if, for, int, return static, void, */
-
 //Comentarios Multilinea y 2 de una linea ( /* */ , //)
-//Analizador ignora, comentarios y los caracteres de nuevalinea, tabulacion y espacio blanco
-/*funciones
-    printf y scanf
-    printf(cadena %d,int) &int
-*/
-<YINITIAL> {
 
+/*
+Dudas de palabras reservadas
+auto	
+switch		
+case	
+const		
+continue		
+sizeof	
+default			
+do			
+*/
+%%
+//Reglas Lexicas
+<YYINITIAL> {
+    
+    "if"                {}
+    "else"              {}
+    "while"             {}
+    "for"               {}
+    "main"              {}
+    "break"             {}
+    "return"            {}
+    "void"              {}
+    "static"            {}
+    "printf"            {}
+    "scanf"             {}
+    
+    /*Atributos*/
+    "int"               {}
+    "int*"              {}
+    "char"              {}
+    "char*"             {}
+
+    {int}               {}
+    {char}              {}
+    {op_sum}            {}
+    {op_mult}           {}
+    {op_rel}            {}
+    {punto_coma}        {}
+    {izq_par}           {}
+    {der_par}           {}
+    {coma}              {}
+    {izq_llave}         {}
+    {der_llave}         {}
+    {autoIncrementos}   {}
+    {asignacion}        {}
+
+    /*Identificador*/
+    {identificador}     {}
 }
