@@ -10,23 +10,20 @@
 %state sl_Comment
 
 //Definiciones Regulares
-initialComnt = "/*"
-sl_Comnt = "//"
-finalComnt = "*/"
-letra = [a-zA-Z] = "_"
+letra = [a-zA-Z] | "_"
 digito = [0-9]
 espacio = [" ",\t,\r,\n]+
 
 /*Atributos*/
 int = {digit}+
-char ="'"."'"
 
 /*Identificador*/
 identificador = {letra}({digito}|{letra})*
+apuntadorVariable = "&"{identificador}
 
 /*Operadores Aritmeticos*/
 op_sum = "+"|"-"
-op_mult = "*"|"/"|"%"
+op_mult = "*"|"/"
 
 /*Expresiones booleanas && (and), ! (not), || (or)*/
 op_rel = "=="|"!="|">"|"<"|">="|"<="|"&&"|"!"|"||"
@@ -38,33 +35,28 @@ der_par = ")"
 coma = ","
 izq_llave = "{"
 der_llave = "}"
-//Revisar si se necesitan estos brackets []
+doble_puntos = ":"
+signo_interrogacion = "?"
 
 /*Token de Asignación*/
 asignacion = "="
 
-/*Incrementos*/
-autoIncrementos = "++" | "--"
-/*Operador condicional */
-//Crear constchar y conststr
-//Buscar expresion regular para caracteres especiales
-//Comentarios Multilinea y 2 de una linea ( /* */ , //)
+caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |{punto_coma}|{izq_par}|{der_par}|{coma}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel}
+constchar = '({letra}|{digito}|{caracteres_especiales} | " ")'
+conststr = ({letra}|{digito}|{caracteres_especiales} | " ")+
 
-/*
-Dudas de palabras reservadas
-auto	
-switch		
-case	
-const		
-continue		
-sizeof	
-default			
-do			
-*/
+
+/*Autoincrementos*/
+autoIncrementos = "++" | "--"
+
+/*Comentarios*/
+initialComnt = "/*"
+sl_Comnt = "//"
+finalComnt = "*/"
 %%
 //Reglas Lexicas
 <YYINITIAL> {
-    
+
     "if"                {}
     "else"              {}
     "while"             {}
@@ -77,7 +69,7 @@ do
     "printf"            {}
     "scanf"             {}
     
-    /*Atributos*/
+    /*Tipo de Dato*/
     "int"               {}
     "int*"              {}
     "char"              {}
@@ -96,11 +88,16 @@ do
     {der_llave}         {}
     {autoIncrementos}   {}
     {asignacion}        {}
+
     {espacio}           {/*Do nothing*/}
     /*Identificador*/
     {identificador}     {}
+
+    /*Comentario /* */
     {initialComnt}      {yybegin(comment);}
+    /*Comentario de una linea*/
     {sl_Comnt}          {yybegin(sl_Comment);}
+    .                   {/*Imprimir donde encontro un error lexico*/}
 }
 
 <comment>{
@@ -112,4 +109,3 @@ do
     \n                  {yybegin(YYINITIAL);}
     .                   {/*Ignora todo*/}
 }
-
