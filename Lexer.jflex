@@ -7,9 +7,11 @@
 %line
 %column
 %state comment
+%state sl_Comment
 
 //Definiciones Regulares
 initialComnt = "/*"
+sl_Comnt = "//"
 finalComnt = "*/"
 letra = [a-zA-Z] = "_"
 digito = [0-9]
@@ -94,13 +96,20 @@ do
     {der_llave}         {}
     {autoIncrementos}   {}
     {asignacion}        {}
-
+    {espacio}           {/*Do nothing*/}
     /*Identificador*/
     {identificador}     {}
     {initialComnt}      {yybegin(comment);}
+    {sl_Comnt}          {yybegin(sl_Comment);}
 }
 
 <comment>{
     {finalComnt}        {yybegin(YYINITIAL);}
     .                   {/*Ignora todo*/}
 }
+
+<sl_Comment>{
+    \n                  {yybegin(YYINITIAL);}
+    .                   {/*Ignora todo*/}
+}
+
