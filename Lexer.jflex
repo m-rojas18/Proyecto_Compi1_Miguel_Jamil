@@ -6,9 +6,11 @@
 %unicode
 %line
 %column
+%state comment
 
 //Definiciones Regulares
-
+initialComnt = "/*"
+finalComnt = "*/"
 letra = [a-zA-Z] = "_"
 digito = [0-9]
 espacio = [" ",\t,\r,\n]+
@@ -95,4 +97,10 @@ do
 
     /*Identificador*/
     {identificador}     {}
+    {initialComnt}      {yybegin(comment);}
+}
+
+<comment>{
+    {finalComnt}        {yybegin(YYINITIAL);}
+    .                   {/*Ignora todo*/}
 }
