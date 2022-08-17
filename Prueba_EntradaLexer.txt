@@ -1,0 +1,22 @@
+
+//Prueba 1 Exitosa
+/*int main()            //main() where the execution begins
+{
+    printf("Hello World");
+    return 0;
+}*/
+
+//Prueba 2
+
+
+/*int main (){
+    if ("Hola") {
+
+    } else if("Hola2") {
+
+    } else {
+        //Nada
+    }
+    return 0;
+}
+*/
