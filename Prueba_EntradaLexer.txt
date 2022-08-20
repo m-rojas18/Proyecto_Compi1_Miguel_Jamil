@@ -1,22 +1,10 @@
+int a, b;
+char a,b;
+/*
+int int
+ignora espacio
+a <ID>
+,
 
-//Prueba 1 Exitosa
-/*int main()            //main() where the execution begins
-{
-    printf("Hello World");
-    return 0;
-}*/
-
-//Prueba 2
-
-
-/*int main (){
-    if ("Hola") {
-
-    } else if("Hola2") {
-
-    } else {
-        //Nada
-    }
-    return 0;
-}
+b <ID>
 */
