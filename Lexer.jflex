@@ -41,7 +41,7 @@ signo_interrogacion = "?"
 /*Token de Asignación*/
 asignacion = "="
 
-caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" | "\\"|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel}
+caracteres_especiales = \"| "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" | "\\"|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel}
 constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
 conststr = \"({letra}|{digito}|{caracteres_especiales}| " ")+ \"
 
