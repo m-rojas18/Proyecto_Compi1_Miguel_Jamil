@@ -8,6 +8,8 @@
 %column
 %state COMMENT
 %state sl_Comment
+%state conststr
+%state CCHAR
 
 //Definiciones Regulares
 letra = [a-zA-Z] | "_"
@@ -42,10 +44,8 @@ signo_interrogacion = "?"
 asignacion = "="
 
 caracteres_especiales = \"| "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" | "\\"|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel}
-constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
-conststr = \"({letra}|{digito}|{caracteres_especiales}| " ")+ \"
-
-
+constchar = ({letra}|{digito}|{caracteres_especiales}| " ")
+inicioChar = '
 /*Autoincrementos*/
 autoIncrementos = "++" | "--"
 
@@ -53,10 +53,13 @@ autoIncrementos = "++" | "--"
 initialComnt = "/*"
 sl_Comnt = "//"
 finalComnt = "*/"
+%{
+    StringBuffer conststring = new StringBuffer(); 
+%}
+
 %%
 //Reglas Lexicas
 <YYINITIAL> {
-
     /*Palabras Reservadas*/
     "if"                    {System.out.println("<IF>");}
     "else"                  {System.out.println("<ELSE>");}
@@ -67,7 +70,6 @@ finalComnt = "*/"
     "break"                 {System.out.println("<BREAK>");}
     "return"                {System.out.println("<RETURN>");}
     "void"                  {System.out.println("<VOID>");}
-    "static"                {System.out.println("<static>");}
     "printf"                {System.out.println("<printf>");}
     "scanf"                 {System.out.println("<scanf>");}
     
@@ -82,7 +84,7 @@ finalComnt = "*/"
     {op_mult}               {System.out.println("<OPMULT, \"" + yytext() + "\">");}
     {op_rel}                {System.out.println("<OPREL, \"" + yytext() + "\">");}
 
-    {coma}                   {System.out.println("<COMMA>, \""+ yytext() + "\">");}
+    {coma}                  {System.out.println("<COMMA>, \""+ yytext() + "\">");}
     {punto_coma}            {System.out.println("<PUNTOCOMA, \"" + yytext() + "\">");}
     {izq_par}               {System.out.println("<LPAR, \""+ yytext() + "\">");}
     {der_par}               {System.out.println("<RPAR, \""+ yytext() + "\">");}
@@ -95,8 +97,11 @@ finalComnt = "*/"
     {asignacion}            {System.out.println("<ASIGNACION, \"" + yytext() + "\">" );}
 
     {apuntadorVariable}     {System.out.println("<APUNTADORVARIABLE, \"" + yytext() + "\">" );}
-    {constchar}             {System.out.println("<CONSTCHAR, " + yytext() + ">");}
-    {conststr}              {System.out.println("<CONSTSTR, " + yytext() + ">");}
+    {inicioChar}            {yybegin(CCHAR);}
+    //Constante de String
+    \"                          {   conststring.setLength(0);
+                                    yybegin(conststr);}
+
     {identificador}         {System.out.println("<ID, \"" + yytext() + "\">");}
 
     /*Comentario  Multilinea*/
@@ -111,11 +116,25 @@ finalComnt = "*/"
 
 <COMMENT>{
     {finalComnt}        {yybegin(YYINITIAL);}
-    \n                  {/*Do nothng*/}/*Evitar que agarre salto de linea, por alguna razon lo agarre e imprime*/
-    .                   {/*Do nothng*/}
+    \n                  {/*Do nothing*/}/*Evitar que agarre salto de linea, por alguna razon lo agarre e imprime*/
+    .                   {/*Do nothing*/}
 }
 
 <sl_Comment>{
     \n                  {yybegin(YYINITIAL);}
     .                   {/*Esta en comentario*/}
+}
+//Estado para constante de String
+<conststr>{
+    \"              { System.out.println("<CONSTSTR, " + conststring.toString() + ">");
+                    yybegin(YYINITIAL);}
+    \\n             {conststring.append('\n');}
+    \\\"            {conststring.append('\"');}
+    \\              {conststring.append('\\');}
+    .               {conststring.append(yytext());}
+}
+
+<CCHAR>{
+    '                 {yybegin(YYINITIAL);}
+    {constchar}       {System.out.println("<CONSTCHAR, " + yytext() + ">");}
 }

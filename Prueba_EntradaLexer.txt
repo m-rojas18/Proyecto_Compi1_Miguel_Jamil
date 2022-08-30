@@ -1,12 +1,3 @@
-int a, b;
-char a,b;
-/*
-int int
-ignora espacio
-a <ID>
-,
-
-b <ID>
-*/
-
-"Hola buenas\" hola "
+'a'
+a
+"a"
