@@ -8,7 +8,6 @@
 %column
 %state COMMENT
 %state SL_COMMENT
-//%state STRING
 //Definiciones Regulares
 letra = [a-zA-Z] | "_"
 digito = [0-9]
@@ -25,8 +24,10 @@ apuntadorVariable = "&"{identificador}
 op_sum = "+"|"-"
 op_mult = "*"|"/"
 
+op_rel = "=="|"!="|">"|"<"|">="|"<="
+
 /*Expresiones booleanas && (and), ! (not), || (or)*/
-op_rel = "=="|"!="|">"|"<"|">="|"<="|"&&"|"!"|"||"
+op_bool = "&&"|"!"|"||"
 
 /*Caracteres con uso especial*/
 punto_coma = ";"
@@ -41,9 +42,10 @@ signo_interrogacion = "?"
 /*Token de Asignación*/
 asignacion = "="
 
-caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" | \\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel}
+caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {op_bool}
 constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
-constString = \"({letra}|{digito}|{caracteres_especiales}| " ")*\"
+constString = \"({letra}|{digito}|{caracteres_especiales}| " ")* \"
+
 /*Autoincrementos*/
 autoIncrementos = "++" | "--"
 
@@ -63,9 +65,9 @@ finalComnt = "*/"
     "main"                  {System.out.println("<MAIN>");}
     "break"                 {System.out.println("<BREAK>");}
     "return"                {System.out.println("<RETURN>");}
-    // "void"                  {System.out.println("<VOID>");}
-    //"printf"                {System.out.println("<printf>");}
-    //"scanf"                 {System.out.println("<scanf>");}
+    "void"                  {System.out.println("<VOID>");}
+    "printf"                {System.out.println("<printf>");}
+    "scanf"                 {System.out.println("<scanf>");}
     
     /*Tipo de Dato*/
     "int"                   {System.out.println("<INT>");}
@@ -82,6 +84,9 @@ finalComnt = "*/"
 
     //Operadores Relacionales
     {op_rel}                {System.out.println("<OPREL, \"" + yytext() + "\">");}
+
+    //Operador Booleano
+    {op_bool}               {System.out.println("<OPBOOL, " + yytext()) + ">";}
 
     //Caracteres importantes
     {coma}                  {System.out.println("<COMMA>, \""+ yytext() + "\">");}
