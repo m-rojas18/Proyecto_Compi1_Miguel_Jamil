@@ -54,6 +54,8 @@ initialComnt = "/*"
 sl_Comnt = "//"
 finalComnt = "*/"
 
+apuntador = ("int" | "char") " "* "*" 
+
 %%
 //Reglas Lexicas
 <YYINITIAL> {
@@ -71,9 +73,9 @@ finalComnt = "*/"
     
     /*Tipo de Dato*/
     "int"                   {System.out.println("<INT>");}
-    "int*"                  {System.out.println("<INT*>");}
     "char"                  {System.out.println("<CHAR>");}
-    "char*"                 {System.out.println("<CHAR*>");}
+
+    {apuntador}             {System.out.println(yytext());}
 
     //Integer
     {int}                   {System.out.println("<INT, \"" + yytext() + "\">");}
@@ -86,7 +88,7 @@ finalComnt = "*/"
     {op_rel}                {System.out.println("<OPREL, \"" + yytext() + "\">");}
 
     //Operador Booleano
-    {op_bool}               {System.out.println("<OPBOOL, " + yytext()) + ">";}
+    {op_bool}               {System.out.println("<OPBOOL, \"" + yytext() + "\">");}
 
     //Caracteres importantes
     {coma}                  {System.out.println("<COMMA>, \""+ yytext() + "\">");}
