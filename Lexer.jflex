@@ -60,53 +60,53 @@ apuntador = ("int" | "char") " "* "*"
 //Reglas Lexicas
 <YYINITIAL> {
     /*Palabras Reservadas*/
-    "if"                    {System.out.println("<IF>");}
-    "else"                  {System.out.println("<ELSE>");}
-    "while"                 {System.out.println("<WHILE>");}
-    "for"                   {System.out.println("<FOR");}
-    "main"                  {System.out.println("<MAIN>");}
-    "break"                 {System.out.println("<BREAK>");}
-    "return"                {System.out.println("<RETURN>");}
-    "void"                  {System.out.println("<VOID>");}
-    "printf"                {System.out.println("<printf>");}
-    "scanf"                 {System.out.println("<scanf>");}
+    "if"                    {return new Symbol(sym.IF, yycolumn, yyline);}
+    "else"                  {return new Symbol(sym.ELSE, yycolumn, yyline);}
+    "while"                 {return new Symbol(sym.WHILE, yycolumn, yyline);}
+    "for"                   {return new Symbol(sym.FOR, yycolumn, yyline);}
+    "main"                  {return new Symbol(sym.MAIN, yycolumn, yyline);}
+    "break"                 {return new Symbol(sym.BREAK, yycolumn, yyline);}
+    "return"                {return new Symbol(sym.RETURN, yycolumn, yyline);}
+    "void"                  {return new Symbol(sym.VOID, yycolumn, yyline);}
+    "printf"                {return new Symbol(sym.PRINTF, yycolumn, yyline);}
+    "scanf"                 {return new Symbol(sym.SCANF, yycolumn, yyline);}
     
     /*Tipo de Dato*/
-    "int"                   {System.out.println("<INT>");}
-    "char"                  {System.out.println("<CHAR>");}
+    "int"                   {return new Symbol(sym.INTEGER, yycolumn, yyline);}
+    "char"                  {return new Symbol(sym.CHAR, yycolumn, yyline);}
 
-    {apuntador}             {System.out.println(yytext());}
+    {apuntador}             {return new Symbol(sym.APUNTADOR, yycolumn, yyline);}
 
     //Integer
-    {int}                   {System.out.println("<INT, \"" + yytext() + "\">");}
+    {int}                   {return new Symbol(sym.INT, yycolumn, yyline, yytext());}
 
     //Operaciones Aritmeticas
-    {op_sum}                {System.out.println("<OPSUM, \"" + yytext() + "\">");}
-    {op_mult}               {System.out.println("<OPMULT, \"" + yytext() + "\">");}
+    {op_sum}                {return new Symbol(sym.OPSUM, yycolumn, yyline);}
+    {op_mult}               {return new Symbol(sym.OPMULT, yycolumn, yyline);}
 
     //Operadores Relacionales
-    {op_rel}                {System.out.println("<OPREL, \"" + yytext() + "\">");}
+    {op_rel}                {return new Symbol(sym.OPREL, yycolumn, yyline);}
 
     //Operador Booleano
-    {op_bool}               {System.out.println("<OPBOOL, \"" + yytext() + "\">");}
+    {op_bool}               {return new Symbol(sym.OPBOOL, yycolumn, yyline);}
 
     //Caracteres importantes
-    {coma}                  {System.out.println("<COMMA>, \""+ yytext() + "\">");}
-    {punto_coma}            {System.out.println("<PUNTOCOMA, \"" + yytext() + "\">");}
-    {izq_par}               {System.out.println("<LPAR, \""+ yytext() + "\">");}
-    {der_par}               {System.out.println("<RPAR, \""+ yytext() + "\">");}
-    {izq_llave}             {System.out.println("<IZQ_LLAVE, \"" + yytext() + "\">");}
-    {der_llave}             {System.out.println("<DER_LLAVE, \"" + yytext() + "\">");}
-    {doble_puntos}          {System.out.println("<DOBLEPUNTOS, \"" + yytext() + "\">");}
-    {signo_interrogacion}   {System.out.println("<SIGNO INTERROGACION, \"" + yytext() + "\">");}
+    {coma}                  {return new Symbol(sym.COMMA, yycolumn, yyline);}
+    {punto_coma}            {return new Symbol(sym.PUNTOCOMA, yycolumn, yyline);}
+    {izq_par}               {return new Symbol(sym.LPAR, yycolumn, yyline);}
+    {der_par}               {return new Symbol(sym.RPAR, yycolumn, yyline);}
+    {izq_llave}             {return new Symbol(sym.IZQLLAVE, yycolumn, yyline);}
+    {der_llave}             {return new Symbol(sym.DERLLAVE, yycolumn, yyline);}
+    {doble_puntos}          {return new Symbol(sym.DOBLEPUNTOS, yycolumn, yyline);}
+    {signo_interrogacion}   {return new Symbol(sym.INTERROGACION, yycolumn, yyline);}
 
-    {autoIncrementos}       {System.out.println("<AUTOINCREMENTOS, \"" + yytext() + "\">");}
-    {asignacion}            {System.out.println("<ASIGNACION, \"" + yytext() + "\">" );}
+    {autoIncrementos}       {return new Symbol(sym.AUTOINCREMENTOS, yycolumn, yyline);}
+    {asignacion}            {return new Symbol(sym.ASIGNACION, yycolumn, yyline);}
 
-    {constString}           {System.out.println("<STRING, " + yytext() + " >");}
-    {constchar}             {System.out.println("<CHAR, " + yytext() + ">");}
-    {identificador}         {System.out.println("<ID, \"" + yytext() + "\">");}
-    {apuntadorVariable}     {System.out.println("<APUNTADORVARIABLE, \"" + yytext() + "\">" );}
+    {constString}           {return new Symbol(sym.CONSTSTRING, yycolumn, yyline, yytext());}
+    {constchar}             {return new Symbol(sym.CONSTCHAR, yycolumn, yyline, yytext());}
+    {identificador}         {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
+    {apuntadorVariable}     {return new Symbol(sym.APUNTADORVAR, yycolumn, yyline, yytext());}
 
     /*Comentario  Multilinea*/
     {initialComnt}          {yybegin(COMMENT);}
