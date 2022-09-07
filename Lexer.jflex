@@ -1,13 +1,19 @@
+import java_cup.runtime.*;
+
 %%
 //Opciones de clase y declaraciones
 %class Lexer
+%cup
 %int
 %standalone
 %unicode
 %line
 %column
+
+
 %state COMMENT
 %state SL_COMMENT
+
 //Definiciones Regulares
 letra = [a-zA-Z] | "_"
 digito = [0-9]
@@ -20,6 +26,7 @@ int = {digito}+
 identificador = {letra}({digito}|{letra})*
 apuntadorVariable = "&"{identificador}
 
+/* Simbolos */
 /*Operadores Aritmeticos*/
 op_sum = "+"|"-"
 op_mult = "*"|"/"
@@ -42,12 +49,14 @@ signo_interrogacion = "?"
 /*Token de Asignación*/
 asignacion = "="
 
+/*Autoincrementos*/
+autoIncrementos = "++" | "--"
+
 caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {op_bool}
 constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
 constString = \"({letra}|{digito}|{caracteres_especiales}| " ")* \"
 
-/*Autoincrementos*/
-autoIncrementos = "++" | "--"
+
 
 /*Comentarios*/
 initialComnt = "/*"
@@ -72,13 +81,13 @@ apuntador = ("int" | "char") " "* "*"
     "scanf"                 {return new Symbol(sym.SCANF, yycolumn, yyline);}
     
     /*Tipo de Dato*/
-    "int"                   {return new Symbol(sym.INTEGER, yycolumn, yyline);}
+    "int"                   {return new Symbol(sym.INT, yycolumn, yyline);}
     "char"                  {return new Symbol(sym.CHAR, yycolumn, yyline);}
 
     {apuntador}             {return new Symbol(sym.APUNTADOR, yycolumn, yyline);}
 
     //Integer
-    {int}                   {return new Symbol(sym.INT, yycolumn, yyline, yytext());}
+    {int}                   {return new Symbol(sym.INTEGER, yycolumn, yyline, yytext());}
 
     //Operaciones Aritmeticas
     {op_sum}                {return new Symbol(sym.OPSUM, yycolumn, yyline);}
@@ -107,6 +116,7 @@ apuntador = ("int" | "char") " "* "*"
     {constchar}             {return new Symbol(sym.CONSTCHAR, yycolumn, yyline, yytext());}
     {identificador}         {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
     {apuntadorVariable}     {return new Symbol(sym.APUNTADORVAR, yycolumn, yyline, yytext());}
+
 
     /*Comentario  Multilinea*/
     {initialComnt}          {yybegin(COMMENT);}
