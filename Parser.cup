@@ -8,3 +8,83 @@ terminal OPREL, OPBOOL;
 terminal INTEGER;
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, INTERROGACION;
 terminal CONSTSTRING, CONSTCHAR, ID;
+
+non terminal programa, inicioprograma, cuerpo, listaDeclaraciones, subprogramas;
+
+start with programa;
+/*
+
+int main (){
+
+ int a;
+ 1. Declarar variable
+ 4. funciones
+
+}
+*/
+//Programa
+programa::= inicioprogramas subprogramas;
+//InicioPrograma
+inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE listaDeclaraciones cuerpo DERLLAVE;
+
+//Cuerpo
+cuerpo ::=  cuerpo listaDeclaraciones
+        |   cuerpo statement
+        ;/*lambda*/
+
+;
+//ListaDeclaraciones
+listaDeclaraciones ::= listaDeclaraciones declaracion
+                    | declaracion
+                    | 
+                    ;/*lambda*/
+//Declaracion
+
+
+//Statement
+statement::= statementCompuesto
+            |statementExpresion
+            |statementSeleccion
+            |statementIteracion
+            |statementSalto
+            ;
+//Statement Compuesto
+statementCompuesto ::= IZQLLAVE listaBloques DERLLAVE
+                    | IZQLLAVE DERLLAVE
+                    ;
+
+//Lista Bloques
+listaBloques :== itemBloque
+                | listaBloques itemBloque
+
+//Item Bloque
+itemBloque :==  declaracion
+                |statement
+                ;
+
+// Statement Expresion
+statementExpresion :== expresion PUNTOCOMA
+                    |PUNTOCOMA
+                    ;/*lambda*/
+
+//Statement Seleccion
+statementSeleccion :== IF LPAR expresion RPAR statement
+                    | IF LPAR expresion RPAR statement ELSE statement
+                    ;
+
+//Statement Iteracion
+statementIteracion :== WHILE LPAR expresion RPAR statement
+                    | FOR LPAR expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR statement
+                    | FOR LPAR declaracion expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR statement
+                    ;
+//Statement Salto
+statementSalto :== BREAK PUNTOCOMA
+                |   RETURN expresion PUNTOCOMA
+                | return PUNTOCOMA
+                ;
+                    
+//Subprogramas
+subprogramas ::= especificadorTipo
+
+
+;
