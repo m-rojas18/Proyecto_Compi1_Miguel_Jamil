@@ -1,46 +1,90 @@
 import java_cup.runtime.*;
 
 
-terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
-terminal INT, CHAR, APUNTADOR, APUNTADORVAR;
+terminal String IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
+terminal String INT, CHAR, APUNTADOR, APUNTADORVAR;
 terminal OPSUM, OPMULT, AUTOINCREMENTOS, ASIGNACION;
 terminal OPREL, OPBOOL;
-terminal INTEGER;
-terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, INTERROGACION;
-terminal CONSTSTRING, CONSTCHAR, ID;
+terminal String COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, INTERROGACION;
+terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID;
 
-non terminal programa, inicioprograma, cuerpo, listaDeclaraciones, subprogramas;
+non terminal programa, inicioprograma; cuerpo, listaDeclaraciones, subprogramas;
 
 start with programa;
 /*
 
 int main (){
 
- int a;
- 1. Declarar variable
- 4. funciones
-
 }
 */
 //Programa
-programa::= inicioprogramas subprogramas;
+programa::= inicioprograma;
 //InicioPrograma
-inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE listaDeclaraciones cuerpo DERLLAVE;
+inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE DERLLAVE ;
+
 
 //Cuerpo
-cuerpo ::=  cuerpo listaDeclaraciones
-        |   cuerpo statement
-        ;/*lambda*/
+cuerpo ::=  listaDeclaraciones
+        |   listaStatements
+        |   listaExpresiones
+        ;
 
 ;
 //ListaDeclaraciones
-listaDeclaraciones ::= listaDeclaraciones declaracion
-                    | declaracion
-                    | 
-                    ;/*lambda*/
+listaDeclaraciones::= declaracion 
+                    | listaDeclaraciones declaracion
+                    ;
 //Declaracion
+declaracion::= declaracionFunc
+            | declaracionVar
+            ;
+//declaracion Funcion
+declaracionFunc ::= especificadorTipo ID LPAR listaParametros RPAR IZQLLAVE Cuerpo DERLLAVE
+                ;
+//Lista parametros
+listaParametros ::= listaParametros , parametro
+                    | parametro
+                    ;
+//Parametro
+parametro ::=especificadorTipo ID;
+
+//Declaracion Variable
+declaracionVar::= especificadorTipo ID PUNTOCOMA
+                | especificadorTipo ID listaIdentificadores PUNTOCOMA
+                | especificadorTipo ID ASIGNACION expresion PUNTOCOMA
+                ;
+//especificador Tipo
+especificadorTipo ::= VOID
+                    | CHAR
+                    | INT
+                    | APUNTADOR 
+                    ;   
+
+//ListaIdentificadores
+listaIdentificadores::= listaIdentificadores ID
+                    | ID
+                    ;
 
 
+//Expresion
+expresion ::= operando listaOperadores
+            | operando
+            ;
+
+listaOperadores ::= listaOperadores operador
+                | operador
+                ;
+operador ::= opAsignacion
+            |opAutomSUM
+            |opAritmetico
+            |opComparacion
+            |opLogico
+            |opCondicional
+            ;
+
+listaStatements::= statement
+                | listaStatements, statement
+                ;
 //Statement
 statement::= statementCompuesto
             |statementExpresion
@@ -65,7 +109,7 @@ itemBloque :==  declaracion
 // Statement Expresion
 statementExpresion :== expresion PUNTOCOMA
                     |PUNTOCOMA
-                    ;/*lambda*/
+                    ;
 
 //Statement Seleccion
 statementSeleccion :== IF LPAR expresion RPAR statement
