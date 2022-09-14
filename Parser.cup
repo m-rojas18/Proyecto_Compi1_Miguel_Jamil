@@ -67,20 +67,53 @@ listaIdentificadores::= listaIdentificadores ID
 
 
 //Expresion
-expresion ::= operando listaOperadores
-            | operando
+expresion ::= opAsignacion
+            | opAutomSUM
+            | opCondicional
+            | expresionSimple
             ;
-
-listaOperadores ::= listaOperadores operador
-                | operador
+//Operador Asignacion
+opAsignacion ::= ID ASIGNACION expresionSimple PUNTOCOMA
+                | ID ASIGNACION operando PUNTOCOMA
                 ;
-operador ::= opAsignacion
-            |opAutomSUM
-            |opAritmetico
+//opAutoSUM
+opAutomSUM ::= variable AUTOINCREMENTOS PUNTOCOMA
+
+
+expresionSimple::=  opAritmetico
             |opComparacion
             |opLogico
-            |opCondicional
+            |
             ;
+
+
+//Operador Aritmetico, empieza en Suma
+opAritmetico ::=  opAritmetico OPSUM expMult
+                | expMult 
+                ;
+//Expresion Multiplicacion
+expMult ::= expMult OPMULT valorNUM
+        | valorNUM
+        ;
+//Valor en expresion aritmetico
+valorNUM ::= INTEGER
+        | LPAR opAritmetico RPAR
+        ;
+
+//Operador Comparacion
+
+
+opComparacion ::= operador OPREL operador
+                | LPAR operador OPREL operador RPAR
+                ;
+opLogico ::= operador OPBOOL operador
+                | LPAR operador OPBOOL operador RPAR
+                ;
+
+operando ::= variable
+        | constantes
+        | llamadaFuncion
+        ;
 
 listaStatements::= statement
                 | listaStatements, statement
