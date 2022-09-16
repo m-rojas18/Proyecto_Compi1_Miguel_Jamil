@@ -34,8 +34,9 @@ op_mult = "*"|"/"
 op_rel = "=="|"!="|">"|"<"|">="|"<="
 
 /*Expresiones booleanas && (and), ! (not), || (or)*/
-op_bool = "&&"|"!"|"||"
-
+//op_bool = "&&"|"!"|"||"
+AND = "&&"
+OR = "||"
 /*Caracteres con uso especial*/
 punto_coma = ";"
 coma = ","
@@ -90,15 +91,15 @@ apuntador = ("int" | "char") " "* "*"
     {int}                   {return new Symbol(sym.INTEGER, yycolumn, yyline, yytext());}
 
     //Operaciones Aritmeticas
-    {op_sum}                {return new Symbol(sym.OPSUM, yycolumn, yyline);}
-    {op_mult}               {return new Symbol(sym.OPMULT, yycolumn, yyline);}
+    {op_sum}                {return new Symbol(sym.OPSUM, yycolumn, yyline, yytext());}
+    {op_mult}               {return new Symbol(sym.OPMULT, yycolumn, yyline, yytext());}
 
     //Operadores Relacionales
-    {op_rel}                {return new Symbol(sym.OPREL, yycolumn, yyline);}
+    {op_rel}                {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
 
     //Operador Booleano
-    {op_bool}               {return new Symbol(sym.OPBOOL, yycolumn, yyline);}
-
+    {AND}                   {return new Symbol(sym.AND, yycolumn, yyline, yytext());}
+    {OR}                    {return new Symbol(sym.OR, yycolumn, yyline, yytext());}
     //Caracteres importantes
     {coma}                  {return new Symbol(sym.COMMA, yycolumn, yyline);}
     {punto_coma}            {return new Symbol(sym.PUNTOCOMA, yycolumn, yyline);}
@@ -107,10 +108,10 @@ apuntador = ("int" | "char") " "* "*"
     {izq_llave}             {return new Symbol(sym.IZQLLAVE, yycolumn, yyline);}
     {der_llave}             {return new Symbol(sym.DERLLAVE, yycolumn, yyline);}
     {doble_puntos}          {return new Symbol(sym.DOBLEPUNTOS, yycolumn, yyline);}
-    {signo_interrogacion}   {return new Symbol(sym.INTERROGACION, yycolumn, yyline);}
+    {signo_interrogacion}   {return new Symbol(sym.SINTERROGACION, yycolumn, yyline);}
 
-    {autoIncrementos}       {return new Symbol(sym.AUTOINCREMENTOS, yycolumn, yyline);}
-    {asignacion}            {return new Symbol(sym.ASIGNACION, yycolumn, yyline);}
+    {autoIncrementos}       {return new Symbol(sym.AUTOINCREMENTOS, yycolumn, yyline, yytext());}
+    {asignacion}            {return new Symbol(sym.ASIGNACION, yycolumn, yyline, yytext());}
 
     {constString}           {return new Symbol(sym.CONSTSTRING, yycolumn, yyline, yytext());}
     {constchar}             {return new Symbol(sym.CONSTCHAR, yycolumn, yyline, yytext());}
