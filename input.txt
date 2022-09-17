@@ -1,3 +1,3 @@
-int main(){
-    //Hola
+int main () {
+    int a, b = 3;
 }

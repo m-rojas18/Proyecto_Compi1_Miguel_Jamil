@@ -10,17 +10,17 @@ terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, listaDeclaraciones, declaracion, declaracionFunc, listaParametros, parametro, declaracionVar, especificadorTipo, listaIdentificadores, listaExpresiones, expresion, exprSimple, exprAritmetica, exprMult, operando, constante, exprAsignacion, exprAutoSUM, exprBooleana, llamadaFuncion, comandos, listaStatements, statement, statementCompuesto, listaBloques, itemBloque, exprCondicional, statementExpresion, statementSeleccion, statementIteracion, statementSalto, variable;
+non terminal programa, inicioprograma, cuerpoPrograma, listaDeclaraciones, declarador, declaracion, iniciarDecl,listaParametros, parametro, especificadorTipo, listaIdentificadores, listaExpresiones, expresion, exprSimple, exprAritmetica, exprMult, operando, constante, exprAsignacion, exprAutoSUM, exprBooleana, llamadaFuncion, comandos, listaStatements, statement, statementCompuesto, listaBloques, itemBloque, exprCondicional, statementExpresion, statementSeleccion, statementIteracion, statementSalto, initDeclaratorLista ;
 
 
-precedence left OR;
+precedence left OR, ELSE;
 
 start with programa;
 
 
 
 //Programa
-programa::= inicioprograma:ip {:System.out.println(ip):};
+programa::= inicioprograma:ip {:System.out.println("Hola inicio Programa");:};
 //InicioPrograma
 inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
 ;
@@ -34,16 +34,27 @@ cuerpoPrograma ::=  listaDeclaraciones
         ;
 //ListaDeclaraciones
 /*Probar si funcion tira error*/
-listaDeclaraciones::= declaracion 
-                    | listaDeclaraciones COMMA declaracion
+listaDeclaraciones::= listaDeclaraciones COMMA declaracion
+                        |declaracion 
                     ;
 //Declaracion
-declaracion::= declaracionFunc
-            | declaracionVar
-            ;
-//declaracion Funcion
-declaracionFunc ::= especificadorTipo ID LPAR listaParametros RPAR 
+declaracion::= especificadorTipo initDeclaratorLista PUNTOCOMA
+                | especificadorTipo ID LPAR listaParametros RPAR IZQLLAVE DERLLAVE
                 ;
+
+//InicialiarDeclaracion
+initDeclaratorLista ::= declarador
+                        | initDeclaratorLista COMMA declarador
+                        ;
+
+//Lista Identificadores
+listaIdentificadores::= listaIdentificadores COMMA ID
+                        | ID
+                        ;
+declarador ::= listaIdentificadores
+                |exprAsignacion
+                ;
+
 //Lista parametros
 listaParametros ::= listaParametros COMMA parametro
                     | parametro
@@ -54,10 +65,13 @@ parametro ::= especificadorTipo ID
         ;
 
 //Declaracion Variable
-declaracionVar::= especificadorTipo variable PUNTOCOMA
-                | especificadorTipo variable listaIdentificadores PUNTOCOMA
-                | especificadorTipo variable ASIGNACION expresion PUNTOCOMA
-                ;
+/*
+declaracionVar::= especificadorTipo ID listaIdentificadores 
+                ;*/
+
+                //a 
+                //a , b
+                //a = 3
 //especificador Tipo
 especificadorTipo ::= VOID
                     | CHAR
@@ -65,10 +79,11 @@ especificadorTipo ::= VOID
                     | APUNTADOR 
                     ;   
 
-//ListaIdentificadores
-listaIdentificadores::= listaIdentificadores variable
-                    | variable
-                    ;
+
+//Inicializar declarador
+iniciarDecl ::=   ID 
+                | ID ASIGNACION expresion
+                ;
 
 //Lista Expresiones
 listaExpresiones ::= expresion PUNTOCOMA
@@ -98,7 +113,7 @@ exprAritmetica ::=  exprAritmetica OPSUM exprMult
 
 
 //Operando
-operando ::= variable
+operando ::= ID
         | constante
         ;
 //Expresion Multiplicacion
@@ -109,15 +124,14 @@ constante ::= INTEGER
         | CONSTCHAR
         ;
 
-//Variables
-variable ::= ID;
+//ID;
 
 //Operador Asignacion
-exprAsignacion ::= variable ASIGNACION expresion
-                | variable ASIGNACION  APUNTADORVAR
+exprAsignacion ::= ID ASIGNACION expresion
+                | ID ASIGNACION  APUNTADORVAR
                 ;
 //opAutoSUM
-exprAutoSUM ::= variable AUTOINCREMENTOS ;
+exprAutoSUM ::= ID AUTOINCREMENTOS ;
 
 //Operador Booleano
 exprBooleana ::= exprSimple AND exprSimple
@@ -174,9 +188,9 @@ itemBloque ::=  declaracion
                     ;*/
 
 //Statement Seleccion
-statementSeleccion ::= IF LPAR expresion RPAR statement
+statementSeleccion ::= IF LPAR expresion RPAR statement 
                     |  IF LPAR expresion RPAR statement ELSE statement
-                    ;
+                    ;   
 
 //Statement Iteracion
 statementIteracion ::= WHILE LPAR expresion RPAR statement

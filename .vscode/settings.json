@@ -1,6 +1,7 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "/Users/miguel/Fuente/java-cup-11b-runtime.jar"
+        "/Users/miguel/Fuente/java-cup-11b-runtime.jar",
+        "/Users/miguel/Fuente/java-cup-11b.jar"
     ]
 }

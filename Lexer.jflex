@@ -53,7 +53,7 @@ asignacion = "="
 /*Autoincrementos*/
 autoIncrementos = "++" | "--"
 
-caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {op_bool}
+caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {AND} | {OR}
 constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
 constString = \"({letra}|{digito}|{caracteres_especiales}| " ")* \"
 
