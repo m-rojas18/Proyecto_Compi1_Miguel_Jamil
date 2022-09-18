@@ -10,7 +10,7 @@ terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, listaDeclaraciones, declarador, declaracion, iniciarDecl,listaParametros, parametro, especificadorTipo, listaIdentificadores, listaExpresiones, expresion, exprSimple, exprAritmetica, exprMult, operando, constante, exprAsignacion, exprAutoSUM, exprBooleana, llamadaFuncion, comandos, listaStatements, statement, statementCompuesto, listaBloques, itemBloque, exprCondicional, statementExpresion, statementSeleccion, statementIteracion, statementSalto, initDeclaratorLista ;
+non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo, declaracionVar, declaracionVarAsig, declaracionFunc, listaIdentificadores, listaParametros, parametro, argumentos, expresiones, expresion, exprSimple, exprAritmetica, exprMult, operando, constante,llamadaFuncion,  exprAsignacion, exprAutoSUM, exprBooleana, comandos, statements, stmt, stmtCompuesto, listaBloques, itemBloque, exprCondicional, stmtExpresion, stmtSeleccion, stmtIteracion, stmtSalto;
 
 
 precedence left OR, ELSE;
@@ -23,39 +23,37 @@ start with programa;
 programa::= inicioprograma:ip {:System.out.println("Hola inicio Programa");:};
 //InicioPrograma
 inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
-;
-/*Cambiar subprogramas*/
-
-//Cuerpo
-cuerpoPrograma ::=  listaDeclaraciones
-        |   listaStatements
-        |   listaExpresiones
-        |
-        ;
-//ListaDeclaraciones
-/*Probar si funcion tira error*/
-listaDeclaraciones::= listaDeclaraciones COMMA declaracion
-                        |declaracion 
-                    ;
-//Declaracion
-declaracion::= especificadorTipo initDeclaratorLista PUNTOCOMA
-                | especificadorTipo ID LPAR listaParametros RPAR IZQLLAVE DERLLAVE
                 ;
 
-//InicialiarDeclaracion
-initDeclaratorLista ::= declarador
-                        | initDeclaratorLista COMMA declarador
-                        ;
+//Cuerpo
+cuerpoPrograma ::=  declaraciones
+        |   expresiones
+        |   statements
+        |   comandos
+        |
+        ;
+
+//ListaDeclaraciones
+declaraciones::= especificadorTipo declaracionVar declaracionFunc declaracionVarAsig;
+//especificador Tipo
+especificadorTipo ::= VOID
+                    | CHAR
+                    | INT
+                    | APUNTADOR
+                    ;  
+                    
+//Declaracion de variables
+declaracionVar ::= declaracionVar listaIdentificadores PUNTOCOMA
+                |
+                ;
 
 //Lista Identificadores
 listaIdentificadores::= listaIdentificadores COMMA ID
                         | ID
                         ;
-declarador ::= listaIdentificadores
-                |exprAsignacion
-                ;
-
-//Lista parametros
+//Declaraciones de Funciones
+declaracionFunc ::= ID LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE;
+//Lista Parametros
 listaParametros ::= listaParametros COMMA parametro
                     | parametro
                     ;
@@ -64,72 +62,56 @@ parametro ::= especificadorTipo ID
         |       
         ;
 
-//Declaracion Variable
-/*
-declaracionVar::= especificadorTipo ID listaIdentificadores 
-                ;*/
-
-                //a 
-                //a , b
-                //a = 3
-//especificador Tipo
-especificadorTipo ::= VOID
-                    | CHAR
-                    | INT
-                    | APUNTADOR 
-                    ;   
-
-
-//Inicializar declarador
-iniciarDecl ::=   ID 
-                | ID ASIGNACION expresion
-                ;
-
 //Lista Expresiones
-listaExpresiones ::= expresion PUNTOCOMA
-                | listaExpresiones COMMA expresion PUNTOCOMA
-                ;
+
+expresiones ::= expresiones COMMA expresion
+        |expresion;
 
 //Expresion
 expresion ::=    exprSimple
-                |exprAutoSUM
+                |exprAutoSUM PUNTOCOMA
                 |exprAritmetica
                 |exprSimple OPREL exprSimple
                 |exprBooleana
                 |exprCondicional
-                |exprAsignacion 
+                |exprAsignacion PUNTOCOMA
                 ;
 
 //Expresion Simple
 exprSimple::=   operando
-                |llamadaFuncion
                 |LPAR expresion RPAR
                 ;
-
-//Expresion Aritmetica
-exprAritmetica ::=  exprAritmetica OPSUM exprMult
-                | exprMult 
-                ;
-
-
 //Operando
-operando ::= ID
+operando ::= listaIdentificadores
         | constante
+        | llamadaFuncion
         ;
-//Expresion Multiplicacion
-exprMult ::= exprMult OPMULT operando
+llamadaFuncion::= ID LPAR argumentos RPAR PUNTOCOMA;
+
+//Argumentos
+argumentos ::= listaIdentificadores
+        |COMMA constante
+        |constante
         ;
+
 //Constantes
 constante ::= INTEGER
         | CONSTCHAR
         ;
 
-//ID;
+//Expresion Aritmetica
+exprAritmetica ::=  exprAritmetica OPSUM exprMult
+                | exprMult 
+                ;
+//Expresion Multiplicacion
+exprMult ::= exprMult OPMULT operando;
+
 
 //Operador Asignacion
 exprAsignacion ::= ID ASIGNACION expresion
                 | ID ASIGNACION  APUNTADORVAR
                 ;
+                
 //opAutoSUM
 exprAutoSUM ::= ID AUTOINCREMENTOS ;
 
@@ -142,10 +124,7 @@ exprBooleana ::= exprSimple AND exprSimple
 exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
                 ;
 
-//Llamada funcion
-llamadaFuncion ::= ID LPAR listaParametros RPAR
-                | comandos 
-                ;
+
 //Comandos printf y scanf
 comandos ::= PRINTF  LPAR CONSTSTRING RPAR
         | PRINTF LPAR CONSTSTRING COMMA operando RPAR
@@ -157,18 +136,19 @@ comandos ::= PRINTF  LPAR CONSTSTRING RPAR
 /* !, &, *, +, - */
 
 
-listaStatements::= statement
-                | listaStatements COMMA statement
+statements ::= stmt
+                | statements COMMA stmt
                 ;
 //Statement
-statement::= statementCompuesto
-            |statementExpresion
-            |statementSeleccion
-            |statementIteracion
-            |statementSalto
+stmt::= stmtCompuesto
+            |stmtExpresion 
+            |stmtSeleccion 
+            |stmtIteracion
+            |stmtSalto
             ;
+            
 //Statement Compuesto
-statementCompuesto ::= IZQLLAVE listaBloques DERLLAVE
+stmtCompuesto ::= IZQLLAVE listaBloques DERLLAVE
                     | IZQLLAVE DERLLAVE
                     ;
 
@@ -179,27 +159,28 @@ listaBloques ::= itemBloque
 
 //Item Bloque
 itemBloque ::=  declaracion
-                |statement
+                |stmt
                 ;
 
 // Statement Expresion
-/*statementExpresion ::= expresion PUNTOCOMA
-                    |PUNTOCOMA
-                    ;*/
+stmtExpresion ::= expresion PUNTOCOMA
+                |PUNTOCOMA
+                ;
+
 
 //Statement Seleccion
-statementSeleccion ::= IF LPAR expresion RPAR statement 
-                    |  IF LPAR expresion RPAR statement ELSE statement
+stmtSeleccion ::= IF LPAR expresion RPAR stmt
+                    |  IF LPAR expresion RPAR stmt ELSE stmt
                     ;   
 
 //Statement Iteracion
-statementIteracion ::= WHILE LPAR expresion RPAR statement
-                    | FOR LPAR expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR statement
-                    | FOR LPAR declaracion expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR statement
+stmtIteracion ::= WHILE LPAR expresion RPAR stmt
+                    | FOR LPAR expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR stmt
+                    | FOR LPAR declaracion expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR stmt
                     ;
 //Statement Salto
-statementSalto ::= BREAK PUNTOCOMA
+stmtSalto ::= BREAK PUNTOCOMA
                 |   RETURN expresion PUNTOCOMA
                 | RETURN PUNTOCOMA
                 ;
-                    
+                
