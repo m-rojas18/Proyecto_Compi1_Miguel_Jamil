@@ -1,5 +1,45 @@
 import java_cup.runtime.*;
 
+/*
+parser code 
+{:
+        public static LinkedList<TError> TablaEL = new LinkedList<TError>();
+
+        //Metodo para error sintactico
+        public void syntax_error(Symbol s)
+        {
+                String lexema = s.value.toString();
+                int fila = s.rigth;
+                int column = s.left;
+
+                System.out.println("Error Sintactico Recuperado");
+                System.out.println("Lexema: " + lexema);
+                System.out.println("Fila: " + fila);
+                System.out.println("Columna: " + columna);
+
+                TError datos = new TError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
+                TablaES.add(datos);
+        }
+
+        //Metodos para error no recuperable
+        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
+        {
+                String lexema = s.value.toString();
+                int fila = s.right;
+                int column = s.left;
+
+                System.out.println("Error Sintactico, Modo Panico");
+                System.out.println("Lexema: " + lexema);
+                System.out.println("Fila: " + fila);
+                System.out.println("Column: " + columna);
+
+                TError datos = new TError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
+                TablaES.add(datos);
+        }
+:}
+
+*/
+
 /*Palabras reservadas*/
 terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
 terminal INT, CHAR, APUNTADOR;
@@ -10,62 +50,150 @@ terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo, declaracionVar, declaracionVarAsig, declaracionFunc, listaIdentificadores, listaParametros, parametro, argumentos, expresiones, expresion, exprSimple, exprAritmetica, exprMult, operando, constante,llamadaFuncion,  exprAsignacion, exprAutoSUM, exprBooleana, comandos, statements, stmt, stmtCompuesto, listaBloques, itemBloque, exprCondicional, stmtExpresion, stmtSeleccion, stmtIteracion, stmtSalto;
+non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, exprAritmetica, exprMult, constante, exprAsignacion, exprAutoSUM, exprBooleana, statements, stmnt, stmntFunc, stmntComandos, listaArgumentos, argumento, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
 
 
 precedence left OR, ELSE;
 
 start with programa;
 
-
-
 //Programa
-programa::= inicioprograma:ip {:System.out.println("Hola inicio Programa");:};
-//InicioPrograma
-inicioprograma ::= INT MAIN LPAR RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
-                ;
-
-//Cuerpo
-cuerpoPrograma ::=  declaraciones
-        |   expresiones
-        |   statements
-        |   comandos
-        |
+programa::= 
+        inicioprograma subprogramas
+        | inicioprograma
         ;
 
-//ListaDeclaraciones
-declaraciones::= especificadorTipo declaracionVar declaracionFunc declaracionVarAsig;
+
+//InicioPrograma
+inicioprograma ::= INT MAIN LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
+                ;
+//Lista Parametros
+listaParametros ::= listaParametros COMMA parametro 
+                    | parametro
+                    ;
+//Parametro
+parametro ::= especificadorTipo ID
+        |/*lambda*/
+        ;
 //especificador Tipo
 especificadorTipo ::= VOID
                     | CHAR
                     | INT
                     | APUNTADOR
-                    ;  
-                    
-//Declaracion de variables
-declaracionVar ::= declaracionVar listaIdentificadores PUNTOCOMA
-                |
+                    ; 
+
+//Cuerpo Programa
+cuerpoPrograma ::=  declaraciones statements cuerpoPrograma
+                | declaraciones 
+                | statements
+                |/*lambda*/
+                ;
+
+//ListaDeclaraciones
+declaraciones ::=
+                declaracion COMMA declaraciones
+                | declaracion
+                ;
+//Declaracion
+declaracion ::= 
+                especificadorTipo declaracionVar PUNTOCOMA 
+                ;
+//Declaracion Var
+declaracionVar ::=  listaIdentificadores        
+                | ID ASIGNACION INTEGER              
+                | ID ASIGNACION INTEGER COMMA declaracionVar
                 ;
 
 //Lista Identificadores
-listaIdentificadores::= listaIdentificadores COMMA ID
-                        | ID
-                        ;
-//Declaraciones de Funciones
-declaracionFunc ::= ID LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE;
-//Lista Parametros
-listaParametros ::= listaParametros COMMA parametro
-                    | parametro
-                    ;
-//Parametro
-parametro ::= especificadorTipo ID
-        |       
+listaIdentificadores::= ID COMMA listaIdentificadores
+                | ID
+                ;
+//Lista statements
+statements ::= 
+                stmnt COMMA statements
+                |stmnt        
+                ;
+
+//Statements
+stmnt::= 
+        stmntFunc
+        |stmntComandos PUNTOCOMA
+        |stmntCompuesto
+        |stmntSeleccion
+        |stmntIteracion
+        |stmntExpresion 
+        |stmntSalto
+        |PUNTOCOMA
         ;
 
-//Lista Expresiones
+//Statement Funcion
+stmntFunc ::= ID:a LPAR listaArgumentos RPAR PUNTOCOMA {:System.out.println(a);:}
+                |ID LPAR RPAR PUNTOCOMA 
+                ;
 
-expresiones ::= expresiones COMMA expresion
-        |expresion;
+//Lista Argumentos
+listaArgumentos::= argumento COMMA listaArgumentos
+                |argumento
+                ;
+//Argumento, poner expresion
+argumento ::= 
+                constante
+                |ID
+                | APUNTADORVAR
+                ;
+//Constante
+constante ::=  INTEGER
+                | CONSTCHAR;
+
+//Comandos printf y scanf
+stmntComandos::= PRINTF  LPAR CONSTSTRING RPAR
+        | PRINTF LPAR CONSTSTRING COMMA argumento RPAR 
+        | SCANF LPAR CONSTSTRING COMMA APUNTADORVAR RPAR 
+        ;
+
+//Statement Compuesto
+stmntCompuesto ::= IZQLLAVE listaBloques DERLLAVE
+                    | IZQLLAVE DERLLAVE
+                    ;
+
+//Lista Bloques
+listaBloques ::= itemBloque
+                | itemBloque listaBloques
+                ;
+
+//Item Bloque
+itemBloque ::= stmnt
+                |declaraciones
+                ;
+
+// Statement Expresion
+stmntExpresion ::= expresion PUNTOCOMA;
+
+//Statement Seleccion
+stmntSeleccion ::= IF LPAR INTEGER RPAR stmnt 
+                    |  IF LPAR INTEGER:a RPAR stmnt ELSE stmnt {:System.out.println(a);:}
+                    ;   
+
+//Statement Iteracion
+stmntIteracion ::= WHILE LPAR INTEGER RPAR stmnt
+                    | FOR LPAR INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
+                    | FOR LPAR declaracion INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
+                    | FOR LPAR ID INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
+                    ;
+
+//Statement Salto
+stmntSalto ::= 
+                BREAK PUNTOCOMA
+                |RETURN INTEGER:a PUNTOCOMA {:System.out.println(a);:}
+                |RETURN PUNTOCOMA
+                ;
+
+
+//exprSimple
+exprSimple ::= ID
+        |constante
+        | LPAR expresion RPAR
+        ;
 
 //Expresion
 expresion ::=    exprSimple
@@ -74,38 +202,15 @@ expresion ::=    exprSimple
                 |exprSimple OPREL exprSimple
                 |exprBooleana
                 |exprCondicional
-                |exprAsignacion PUNTOCOMA
+                |exprAsignacion 
                 ;
-
-//Expresion Simple
-exprSimple::=   operando
-                |LPAR expresion RPAR
-                ;
-//Operando
-operando ::= listaIdentificadores
-        | constante
-        | llamadaFuncion
-        ;
-llamadaFuncion::= ID LPAR argumentos RPAR PUNTOCOMA;
-
-//Argumentos
-argumentos ::= listaIdentificadores
-        |COMMA constante
-        |constante
-        ;
-
-//Constantes
-constante ::= INTEGER
-        | CONSTCHAR
-        ;
 
 //Expresion Aritmetica
 exprAritmetica ::=  exprAritmetica OPSUM exprMult
                 | exprMult 
                 ;
 //Expresion Multiplicacion
-exprMult ::= exprMult OPMULT operando;
-
+exprMult ::= exprMult OPMULT exprSimple;
 
 //Operador Asignacion
 exprAsignacion ::= ID ASIGNACION expresion
@@ -123,64 +228,12 @@ exprBooleana ::= exprSimple AND exprSimple
 //Operador Condicional
 exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
                 ;
+//Lista Subprogramas
+subprogramas::= subprograma COMMA subprogramas
+                | subprograma
+                ;
 
-
-//Comandos printf y scanf
-comandos ::= PRINTF  LPAR CONSTSTRING RPAR
-        | PRINTF LPAR CONSTSTRING COMMA operando RPAR
-        | SCANF LPAR CONSTSTRING COMMA APUNTADORVAR RPAR
-        ;
-
-
+//subprograma
+subprograma::= especificadorTipo ID LPAR listaArgumentos RPAR IZQLLAVE cuerpoPrograma DERLLAVE;
 //Operador unario
 /* !, &, *, +, - */
-
-
-statements ::= stmt
-                | statements COMMA stmt
-                ;
-//Statement
-stmt::= stmtCompuesto
-            |stmtExpresion 
-            |stmtSeleccion 
-            |stmtIteracion
-            |stmtSalto
-            ;
-            
-//Statement Compuesto
-stmtCompuesto ::= IZQLLAVE listaBloques DERLLAVE
-                    | IZQLLAVE DERLLAVE
-                    ;
-
-//Lista Bloques
-listaBloques ::= itemBloque
-                | listaBloques itemBloque
-                ;
-
-//Item Bloque
-itemBloque ::=  declaracion
-                |stmt
-                ;
-
-// Statement Expresion
-stmtExpresion ::= expresion PUNTOCOMA
-                |PUNTOCOMA
-                ;
-
-
-//Statement Seleccion
-stmtSeleccion ::= IF LPAR expresion RPAR stmt
-                    |  IF LPAR expresion RPAR stmt ELSE stmt
-                    ;   
-
-//Statement Iteracion
-stmtIteracion ::= WHILE LPAR expresion RPAR stmt
-                    | FOR LPAR expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR stmt
-                    | FOR LPAR declaracion expresion PUNTOCOMA expresion PUNTOCOMA expresion RPAR stmt
-                    ;
-//Statement Salto
-stmtSalto ::= BREAK PUNTOCOMA
-                |   RETURN expresion PUNTOCOMA
-                | RETURN PUNTOCOMA
-                ;
-                
