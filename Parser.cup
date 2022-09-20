@@ -1,9 +1,10 @@
 import java_cup.runtime.*;
+import java.util.*;
 
-/*
+
 parser code 
 {:
-        public static LinkedList<TError> TablaEL = new LinkedList<TError>();
+        public static LinkedList<TablaError> TablaEL = new LinkedList<TablaError>();
 
         //Metodo para error sintactico
         public void syntax_error(Symbol s)
@@ -17,8 +18,9 @@ parser code
                 System.out.println("Fila: " + fila);
                 System.out.println("Columna: " + columna);
 
-                TError datos = new TError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
-                TablaES.add(datos);
+                TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
+                System.out.println(datos);
+                //TablaES.add(datos);
         }
 
         //Metodos para error no recuperable
@@ -33,12 +35,12 @@ parser code
                 System.out.println("Fila: " + fila);
                 System.out.println("Column: " + columna);
 
-                TError datos = new TError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
-                TablaES.add(datos);
+                TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
+                System.out.println(datos);
+                //TablaES.add(datos);
         }
 :}
 
-*/
 
 /*Palabras reservadas*/
 terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
@@ -50,7 +52,7 @@ terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, exprAritmetica, exprMult, constante, exprAsignacion, exprAutoSUM, exprBooleana, statements, stmnt, stmntFunc, stmntComandos, listaArgumentos, argumento, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
+non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo,operando, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, exprMult, constante, exprAsignacion, exprBooleana, statements, stmnt, llamadoFunc, stmntComandos, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
 
 
 precedence left OR, ELSE;
@@ -62,7 +64,7 @@ programa::=
         inicioprograma subprogramas
         | inicioprograma
         ;
-
+   
 
 //InicioPrograma
 inicioprograma ::= INT MAIN LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
@@ -83,9 +85,9 @@ especificadorTipo ::= VOID
                     ; 
 
 //Cuerpo Programa
-cuerpoPrograma ::=  declaraciones statements cuerpoPrograma
-                | declaraciones 
-                | statements
+cuerpoPrograma ::=  
+                declaraciones cuerpoPrograma
+                | statements cuerpoPrograma
                 |/*lambda*/
                 ;
 
@@ -100,24 +102,22 @@ declaracion ::=
                 ;
 //Declaracion Var
 declaracionVar ::=  listaIdentificadores        
-                | ID ASIGNACION INTEGER              
-                | ID ASIGNACION INTEGER COMMA declaracionVar
+                | exprAsignacion              
+                | exprAsignacion COMMA declaracionVar
                 ;
 
 //Lista Identificadores
-listaIdentificadores::= ID COMMA listaIdentificadores
-                | ID
+listaIdentificadores::= ID
+                |listaIdentificadores COMMA ID
                 ;
 //Lista statements
-statements ::= 
-                stmnt COMMA statements
+statements ::=  stmnt COMMA statements
                 |stmnt        
                 ;
 
 //Statements
 stmnt::= 
-        stmntFunc
-        |stmntComandos PUNTOCOMA
+        stmntComandos PUNTOCOMA
         |stmntCompuesto
         |stmntSeleccion
         |stmntIteracion
@@ -126,28 +126,14 @@ stmnt::=
         |PUNTOCOMA
         ;
 
-//Statement Funcion
-stmntFunc ::= ID:a LPAR listaArgumentos RPAR PUNTOCOMA {:System.out.println(a);:}
-                |ID LPAR RPAR PUNTOCOMA 
-                ;
 
-//Lista Argumentos
-listaArgumentos::= argumento COMMA listaArgumentos
-                |argumento
-                ;
-//Argumento, poner expresion
-argumento ::= 
-                constante
-                |ID
-                | APUNTADORVAR
-                ;
 //Constante
 constante ::=  INTEGER
                 | CONSTCHAR;
 
 //Comandos printf y scanf
 stmntComandos::= PRINTF  LPAR CONSTSTRING RPAR
-        | PRINTF LPAR CONSTSTRING COMMA argumento RPAR 
+        | PRINTF LPAR CONSTSTRING COMMA listaIdentificadores RPAR 
         | SCANF LPAR CONSTSTRING COMMA APUNTADORVAR RPAR 
         ;
 
@@ -166,74 +152,71 @@ itemBloque ::= stmnt
                 |declaraciones
                 ;
 
-// Statement Expresion
-stmntExpresion ::= expresion PUNTOCOMA;
-
 //Statement Seleccion
-stmntSeleccion ::= IF LPAR INTEGER RPAR stmnt 
-                    |  IF LPAR INTEGER:a RPAR stmnt ELSE stmnt {:System.out.println(a);:}
+stmntSeleccion ::= IF LPAR expresion RPAR stmnt 
+                    |  IF LPAR expresion RPAR stmnt ELSE stmnt 
                     ;   
 
 //Statement Iteracion
-stmntIteracion ::= WHILE LPAR INTEGER RPAR stmnt
-                    | FOR LPAR INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
-                    | FOR LPAR declaracion INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
-                    | FOR LPAR ID INTEGER PUNTOCOMA INTEGER PUNTOCOMA INTEGER RPAR stmnt
+stmntIteracion ::= WHILE LPAR expresion RPAR stmnt
+                    | FOR LPAR ID PUNTOCOMA stmntExpresion PUNTOCOMA ID AUTOINCREMENTOS RPAR stmnt
+                    | FOR LPAR declaracion stmntExpresion PUNTOCOMA ID AUTOINCREMENTOS RPAR stmnt
                     ;
 
 //Statement Salto
 stmntSalto ::= 
                 BREAK PUNTOCOMA
-                |RETURN INTEGER:a PUNTOCOMA {:System.out.println(a);:}
+                |RETURN expresion PUNTOCOMA 
                 |RETURN PUNTOCOMA
                 ;
 
+// Statement Expresion
+stmntExpresion ::=  expresion PUNTOCOMA;
 
-//exprSimple
-exprSimple ::= ID
-        |constante
-        | LPAR expresion RPAR
-        ;
-
+/*Consultar AND y OR*/
 //Expresion
-expresion ::=    exprSimple
-                |exprAutoSUM PUNTOCOMA
-                |exprAritmetica
-                |exprSimple OPREL exprSimple
-                |exprBooleana
-                |exprCondicional
-                |exprAsignacion 
+expresion ::= 
+                exprSimple
+                | exprSimple OPREL exprSimple
+                | exprAsignacion
+                | ID AUTOINCREMENTOS:ai {:System.out.println(ai);:}
                 ;
 
-//Expresion Aritmetica
-exprAritmetica ::=  exprAritmetica OPSUM exprMult
-                | exprMult 
-                ;
-//Expresion Multiplicacion
-exprMult ::= exprMult OPMULT exprSimple;
 
-//Operador Asignacion
+//ExpresionAsignacion
 exprAsignacion ::= ID ASIGNACION expresion
                 | ID ASIGNACION  APUNTADORVAR
                 ;
-                
-//opAutoSUM
-exprAutoSUM ::= ID AUTOINCREMENTOS ;
 
-//Operador Booleano
-exprBooleana ::= exprSimple AND exprSimple
-                | exprSimple OR exprSimple
+//Expresion Booleana
+//exprSimple
+exprSimple ::= exprMult
+        | exprSimple OPSUM exprMult
+        ;
+exprMult ::= operando
+                | exprMult OPMULT operando
                 ;
-
-//Operador Condicional
-exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
+//Operando
+operando ::= ID
+        | constante
+        | LPAR expresion RPAR
+        |llamadoFunc
+        ;
+//Statement Funcion
+llamadoFunc ::= ID LPAR RPAR
+                |ID LPAR  listaIdentificadores RPAR 
                 ;
+/*
+//Operador Condicional/*
+//exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
+  //              ;
+*/
 //Lista Subprogramas
 subprogramas::= subprograma COMMA subprogramas
                 | subprograma
                 ;
 
 //subprograma
-subprograma::= especificadorTipo ID LPAR listaArgumentos RPAR IZQLLAVE cuerpoPrograma DERLLAVE;
+subprograma::= especificadorTipo ID LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE;
 //Operador unario
 /* !, &, *, +, - */

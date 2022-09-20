@@ -1,4 +1,9 @@
 int main () {
-    
-   return 18;
+
+   int a = 5;
+
+   for(int i; i < 5; i++){
+      int a;
+   }
 }
+
