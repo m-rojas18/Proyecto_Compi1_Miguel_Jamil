@@ -1,10 +1,12 @@
-import java_cup.runtime.*;
+//import java_cup.runtime.*;
 import java.util.*;
+import java_cup.runtime.Symbol;
 
-/*
+
 parser code 
 {:
-        public static LinkedList<TablaError> TablaEL = new LinkedList<TablaError>();
+/*
+        //public static LinkedList<TablaError> TablaEL = new LinkedList<TablaError>();
 
         //Metodo para error sintactico
         public void syntax_error(Symbol s)
@@ -18,8 +20,8 @@ parser code
                 System.out.println("Fila: " + fila);
                 System.out.println("Columna: " + columna);
 
-                TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
-                System.out.println(datos);
+                //TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
+                //System.out.println(datos);
                 //TablaES.add(datos);
         }
 
@@ -35,12 +37,20 @@ parser code
                 System.out.println("Fila: " + fila);
                 System.out.println("Column: " + columna);
 
-                TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
-                System.out.println(datos);
+                //TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
+                //System.out.println(datos);
                 //TablaES.add(datos);
         }
+        */
+        public void syntax_error(Symbol s){
+        System.out.println("Error R de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
+    }
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error NR de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
+    }
 :}
-*/
+
 
 /*Palabras reservadas*/
 terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
@@ -63,6 +73,10 @@ start with programa;
 programa::= 
         inicioprograma subprogramas
         | inicioprograma
+        | error PUNTOCOMA
+        | error DERLLAVE
+        | error LPAR
+        | error RPAR
         ;
    
 
@@ -122,6 +136,7 @@ stmnt::=
         |stmntExpresion 
         |stmntSalto
         |PUNTOCOMA
+        | error PUNTOCOMA 
         ;
 
 
