@@ -1,7 +1,7 @@
 import java_cup.runtime.*;
 import java.util.*;
 
-
+/*
 parser code 
 {:
         public static LinkedList<TablaError> TablaEL = new LinkedList<TablaError>();
@@ -40,22 +40,22 @@ parser code
                 //TablaES.add(datos);
         }
 :}
-
+*/
 
 /*Palabras reservadas*/
 terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
 terminal INT, CHAR, APUNTADOR;
 /*Lexemas*/
-terminal String OPSUM, OPMULT, AUTOINCREMENTOS, ASIGNACION, OPREL, AND, OR;
+terminal String OPSUM, OPMULT, AUTOINCREMENTOS, ASIGNACION, OPREL, OPLOGIC;
 terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
 /*Caracteres especiales*/
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo,operando, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, exprMult, constante, exprAsignacion, exprBooleana, statements, stmnt, llamadoFunc, stmntComandos, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
+non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo,operando, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, termino, constante, exprAsignacion, exprLogica, condicion, exprRelacional, statements, stmnt, llamadoFunc, stmntComandos, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
 
 
-precedence left OR, ELSE;
+precedence left  ELSE;
 
 start with programa;
 
@@ -97,9 +97,7 @@ declaraciones ::=
                 | declaracion
                 ;
 //Declaracion
-declaracion ::= 
-                especificadorTipo declaracionVar PUNTOCOMA 
-                ;
+declaracion ::= especificadorTipo declaracionVar PUNTOCOMA;
 //Declaracion Var
 declaracionVar ::=  listaIdentificadores        
                 | exprAsignacion              
@@ -107,8 +105,8 @@ declaracionVar ::=  listaIdentificadores
                 ;
 
 //Lista Identificadores
-listaIdentificadores::= ID
-                |listaIdentificadores COMMA ID
+listaIdentificadores::= ID:l      {:System.out.println("ID ld" + l);:}                
+                        |listaIdentificadores COMMA ID
                 ;
 //Lista statements
 statements ::=  stmnt COMMA statements
@@ -128,7 +126,7 @@ stmnt::=
 
 
 //Constante
-constante ::=  INTEGER
+constante ::=  INTEGER:f          {:System.out.println("Numero: " + f.toString());:}
                 | CONSTCHAR;
 
 //Comandos printf y scanf
@@ -159,13 +157,13 @@ stmntSeleccion ::= IF LPAR expresion RPAR stmnt
 
 //Statement Iteracion
 stmntIteracion ::= WHILE LPAR expresion RPAR stmnt
-                    | FOR LPAR ID PUNTOCOMA stmntExpresion PUNTOCOMA ID AUTOINCREMENTOS RPAR stmnt
-                    | FOR LPAR declaracion stmntExpresion PUNTOCOMA ID AUTOINCREMENTOS RPAR stmnt
+                    | FOR LPAR exprAsignacion PUNTOCOMA expresion PUNTOCOMA ID:k AUTOINCREMENTOS RPAR stmnt {:System.out.println("FOR (" + k);:}
+                    | FOR LPAR declaracion expresion PUNTOCOMA  ID AUTOINCREMENTOS RPAR stmnt
                     ;
 
 //Statement Salto
 stmntSalto ::= 
-                BREAK PUNTOCOMA
+                BREAK PUNTOCOMA {:System.out.println("BREAK;");:}
                 |RETURN expresion PUNTOCOMA 
                 |RETURN PUNTOCOMA
                 ;
@@ -177,27 +175,33 @@ stmntExpresion ::=  expresion PUNTOCOMA;
 //Expresion
 expresion ::= 
                 exprSimple
-                | exprSimple OPREL exprSimple
+                | exprRelacional
+                | condicion OPLOGIC:op condicion {:System.out.println("OPLOGIC: " + op);:}
                 | exprAsignacion
-                | ID AUTOINCREMENTOS:ai {:System.out.println(ai);:}
+                | ID AUTOINCREMENTOS
                 ;
 
 
 //ExpresionAsignacion
-exprAsignacion ::= ID ASIGNACION expresion
+exprAsignacion ::= ID:i ASIGNACION expresion       {:System.out.print(i);:}
                 | ID ASIGNACION  APUNTADORVAR
+           ;
+
+condicion ::= exprSimple 
+                | exprRelacional
                 ;
 
-//Expresion Booleana
+//Expresion Relacional
+exprRelacional::= exprSimple OPREL exprSimple;
 //exprSimple
-exprSimple ::= exprMult
-        | exprSimple OPSUM exprMult
+exprSimple ::= termino
+        | exprSimple OPSUM termino
         ;
-exprMult ::= operando
-                | exprMult OPMULT operando
+termino ::= operando
+                | termino OPMULT operando
                 ;
 //Operando
-operando ::= ID
+operando ::= ID:a                  {:System.out.println("ID operador" + a);:}
         | constante
         | LPAR expresion RPAR
         |llamadoFunc

@@ -35,8 +35,8 @@ op_rel = "=="|"!="|">"|"<"|">="|"<="
 
 /*Expresiones booleanas && (and), ! (not), || (or)*/
 //op_bool = "&&"|"!"|"||"
-AND = "&&"
-OR = "||"
+op_logic = "&&" | "||"
+
 /*Caracteres con uso especial*/
 punto_coma = ";"
 coma = ","
@@ -53,12 +53,12 @@ asignacion = "="
 /*Autoincrementos*/
 autoIncrementos = "++" | "--"
 
-caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {AND} | {OR}
+caracteres_especiales = "."|"-"|"@"|"#"|"$"|"%"|"^"|"&"| "'" |"¿" |"¡"|"/"|\\.|{coma}|{punto_coma}|{izq_par}|{der_par}|{izq_llave}|{der_llave}|{doble_puntos}|{signo_interrogacion}|{op_sum}|{op_mult}|{op_rel} | {op_logic}
 constchar = '({letra}|{digito}|{caracteres_especiales}| " ")'
 constString = \"({letra}|{digito}|{caracteres_especiales}| " ")* \"
 
 
-
+//param1_scanf = \""%"d | c \" 
 /*Comentarios*/
 initialComnt = "/*"
 sl_Comnt = "//"
@@ -97,9 +97,8 @@ apuntador = ("int" | "char") " "* "*"
     //Operadores Relacionales
     {op_rel}                {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
 
-    //Operador Booleano
-    {AND}                   {return new Symbol(sym.AND, yycolumn, yyline, yytext());}
-    {OR}                    {return new Symbol(sym.OR, yycolumn, yyline, yytext());}
+    //Operador Logico
+    {op_logic}                {return new Symbol(sym.OPLOGIC, yycolumn, yyline, yytext());}
     //Caracteres importantes
     {coma}                  {return new Symbol(sym.COMMA, yycolumn, yyline);}
     {punto_coma}            {return new Symbol(sym.PUNTOCOMA, yycolumn, yyline);}
