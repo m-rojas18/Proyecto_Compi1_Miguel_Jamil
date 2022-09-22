@@ -1,68 +1,42 @@
-//import java_cup.runtime.*;
+import java_cup.runtime.*;
 import java.util.*;
 import java_cup.runtime.Symbol;
 
 
 parser code 
 {:
-/*
-        //public static LinkedList<TablaError> TablaEL = new LinkedList<TablaError>();
+        public static int num_erroresSintactico = 0;
+        public static Nodo padre;
+        public static int cont_Nodos = 0;
 
-        //Metodo para error sintactico
-        public void syntax_error(Symbol s)
-        {
-                String lexema = s.value.toString();
-                int fila = s.rigth;
-                int column = s.left;
-
-                System.out.println("Error Sintactico Recuperado");
-                System.out.println("Lexema: " + lexema);
-                System.out.println("Fila: " + fila);
-                System.out.println("Columna: " + columna);
-
-                //TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter No Esperado");
-                //System.out.println(datos);
-                //TablaES.add(datos);
-        }
-
-        //Metodos para error no recuperable
-        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
-        {
-                String lexema = s.value.toString();
-                int fila = s.right;
-                int column = s.left;
-
-                System.out.println("Error Sintactico, Modo Panico");
-                System.out.println("Lexema: " + lexema);
-                System.out.println("Fila: " + fila);
-                System.out.println("Column: " + columna);
-
-                //TablaError datos = new TablaError(lexema, fila, columna, "Error Sintactico", "Caracter no esperado");
-                //System.out.println(datos);
-                //TablaES.add(datos);
-        }
-        */
         public void syntax_error(Symbol s){
-        System.out.println("Error R de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
-    }
+                num_erroresSintactico ++;
+                System.out.println("Error R de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
+        }
 
-    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
-        System.out.println("Error NR de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
-    }
+        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+                System.out.println("Error NR de sintaxis: "+ s.value +" Columna "+(s.left+1)+" Linea "+(s.right+1) );
+        }
 :}
+/*
+ {:
+        Nodo nodo = new Nodo();
 
+        RESULT = nodo;
+ :}
+*/
 
 /*Palabras reservadas*/
 terminal IF, ELSE, WHILE, FOR, MAIN, BREAK, RETURN, VOID, PRINTF, SCANF;
-terminal INT, CHAR, APUNTADOR;
+terminal INT, CHAR;
 /*Lexemas*/
 terminal String OPSUM, OPMULT, AUTOINCREMENTOS, ASIGNACION, OPREL, OPLOGIC;
-terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR;
+terminal String INTEGER, CONSTSTRING, CONSTCHAR, ID,  APUNTADORVAR, APUNTADOR;
 /*Caracteres especiales*/
 terminal COMMA, PUNTOCOMA, LPAR, RPAR, IZQLLAVE, DERLLAVE, DOBLEPUNTOS, SINTERROGACION;
 
 
-non terminal programa, inicioprograma, cuerpoPrograma, declaraciones, declaracion, especificadorTipo,operando, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, termino, constante, exprAsignacion, exprLogica, condicion, exprRelacional, statements, stmnt, llamadoFunc, stmntComandos, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
+non terminal programa, inicioprograma, cuerpoPrograma, declaracion, especificadorTipo,operando, declaracionVar, listaIdentificadores, listaParametros, parametro,expresion, exprSimple, termino, constante, exprAsignacion, exprLogica, condicion, exprRelacional, statements, stmnt, llamadoFunc, stmntComandos, stmntCompuesto, listaBloques, itemBloque, exprCondicional, stmntExpresion, stmntSeleccion, stmntIteracion, stmntSalto, subprogramas, subprograma;
 
 
 precedence left  ELSE;
@@ -71,168 +45,669 @@ start with programa;
 
 //Programa
 programa::= 
-        inicioprograma subprogramas
-        | inicioprograma
-        | error PUNTOCOMA
-        | error DERLLAVE
-        | error LPAR
-        | error RPAR
+        inicioprograma:inicProg subprogramas:subProg 
+        {:
+        Nodo nodo = new Nodo();
+        nodo.setEtiqueta("INICIO PROGRAMA CON SUBPROGRAMAS");
+        nodo.setID(parser.cont_Nodos);
+        parser.cont_Nodos++;
+
+        nodo.addHijos((Nodo) inicProg);
+        nodo.addHijos((Nodo) subProg);
+
+        parser.padre = nodo;
+        RESULT = nodo;
+        :}
+        |inicioprograma:inicProg
+        {:
+        Nodo nodo = new Nodo();
+        nodo.setEtiqueta("INICIO PROGRAMA SOLO MAIN");
+        nodo.setID(parser.cont_Nodos);
+        parser.cont_Nodos++;
+        nodo.addHijos((Nodo) inicProg);
+
+        parser.padre = nodo;
+        RESULT = nodo;
+        :}
         ;
    
-
 //InicioPrograma
-inicioprograma ::= INT MAIN LPAR listaParametros RPAR IZQLLAVE cuerpoPrograma DERLLAVE 
+inicioprograma ::= INT MAIN LPAR listaParametros:lparametros RPAR IZQLLAVE cuerpoPrograma:cuerpoP DERLLAVE 
+                {:
+                   Nodo nodo = new Nodo();
+                   nodo.setEtiqueta("MAIN");
+                   nodo.setID(parser.cont_Nodos);
+                   parser.cont_Nodos++;
+
+                   nodo.addHijos((Nodo)lparametros);
+                   nodo.addHijos((Nodo)cuerpoP);
+                   RESULT= nodo;
+                :}
+                | error PUNTOCOMA
+                | error DERLLAVE
+                | error LPAR
+                | error RPAR
                 ;
 //Lista Parametros
-listaParametros ::= listaParametros COMMA parametro 
-                    | parametro
+listaParametros ::= listaParametros:listaP COMMA parametro:param
+                        {:
+                           Nodo nodo = new Nodo();
+                           nodo.setEtiqueta("LISTA DE PARAMETROS");
+                           nodo.setID(parser.cont_Nodos);
+                           parser.cont_Nodos++;
+
+                           nodo.addHijos((Nodo) listaP);
+                           nodo.addHijos((Nodo)param);
+                           RESULT = nodo;
+                        :}
+                    | parametro:param
+                        {:
+                           RESULT = (Nodo)param;
+                        :}
                     ;
 //Parametro
-parametro ::= especificadorTipo ID
-        |/*lambda*/
-        ;
+parametro ::= 
+                especificadorTipo:tipo ID:id
+                {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("PAREMETRO");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+
+                        //terminal ID
+                        Nodo identificador = new Nodo();
+                        identificador.setEtiqueta("ID");
+                        identificador.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        identificador.setValor(id);
+                        nodo.addHijos((Nodo)tipo);
+                        nodo.addHijos((Nodo)identificador);
+                        RESULT = nodo;
+                :}
+                |/*lambda*/
+                {:
+                        Nodo nodo = new Nodo();
+			nodo.setEtiqueta("VACIO");
+			nodo.setID(parser.cont_Nodos);
+			parser.cont_Nodos++;
+			RESULT = nodo;
+                :}
+                ;
 //especificador Tipo
-especificadorTipo ::= VOID
+especificadorTipo ::= VOID 
+                    {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("TIPO");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        nodo.setValor("VOID");
+
+                        RESULT = nodo;
+                    :}
                     | CHAR
+                    {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("TIPO");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        nodo.setValor("CHAR");
+
+                        RESULT = nodo;
+                    :}
                     | INT
-                    | APUNTADOR
+                    {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("TIPO");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        nodo.setValor("INT");
+
+                        RESULT = nodo;
+                    :}
+                    | APUNTADOR:pointer
+                    {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("TIPO");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        nodo.setValor(pointer);
+                        RESULT = nodo;
+                    :}
+                    
                     ; 
 
 //Cuerpo Programa
 cuerpoPrograma ::=  
-                declaraciones cuerpoPrograma
-                | statements cuerpoPrograma
-                |/*lambda*/
-                ;
+                declaracion:decl cuerpoPrograma:cp
+                {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("CUERPO PROGRAMA");
+			nodo.setID(parser.cont_Nodos);
+			parser.cont_Nodos++;
+                        nodo.addHijos((Nodo)decl);
+                        nodo.addHijos((Nodo)cp);
+                        RESULT = nodo;
 
-//ListaDeclaraciones
-declaraciones ::=
-                declaracion COMMA declaraciones
-                | declaracion
+                :}
+                | statements cuerpoPrograma
+                
+                |/*lambda*/
+                {:
+                        Nodo nodo = new Nodo();
+			nodo.setEtiqueta("VACIO");
+			nodo.setID(parser.cont_Nodos);
+			parser.cont_Nodos++;
+			RESULT = nodo;
+                :}
                 ;
 //Declaracion
-declaracion ::= especificadorTipo declaracionVar PUNTOCOMA;
+declaracion ::= especificadorTipo:tipo declaracionVar:var PUNTOCOMA
+                {:
+                        Nodo nodo = new Nodo();
+                        nodo.setEtiqueta("DECLARACION VARIABLE");
+                        nodo.setID(parser.cont_Nodos);
+                        parser.cont_Nodos++;
+                        nodo.addHijos((Nodo)tipo);
+                        nodo.addHijos((Nodo)var);
+                        RESULT = nodo;
+                :}
+                ;
+
 //Declaracion Var
-declaracionVar ::=  listaIdentificadores        
-                | exprAsignacion              
+declaracionVar ::=  listaIdentificadores:li
+                {:
+                        RESULT = (Nodo)li;
+                :}
+                | exprAsignacion  
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}   
                 | exprAsignacion COMMA declaracionVar
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 //Lista Identificadores
-listaIdentificadores::= ID:l      {:System.out.println("ID ld" + l);:}                
-                        |listaIdentificadores COMMA ID
-                ;
-//Lista statements
-statements ::=  stmnt COMMA statements
-                |stmnt        
-                ;
+listaIdentificadores::= ID:id
+                        {:
+
+                            //terminal ID
+                            Nodo identificador = new Nodo();
+                            identificador.setEtiqueta("ID");
+                            identificador.setID(parser.cont_Nodos);
+                            parser.cont_Nodos++;
+                            identificador.setValor(id);
+                            RESULT = identificador;
+                        :}            
+                        |listaIdentificadores COMMA ID:id
+                        {:Nodo nodo = new Nodo();
+                            nodo.setEtiqueta("LISTA IDENTIFICADORES");
+                            nodo.setID(parser.cont_Nodos);
+                            parser.cont_Nodos++;
+
+                            //terminal ID
+                            Nodo identificador = new Nodo();
+                            identificador.setEtiqueta("ID");
+                            nodo.setID(parser.cont_Nodos);
+                            parser.cont_Nodos++;
+                            nodo.setValor(id);
+                            nodo.addHijos(identificador);
+                            RESULT = nodo; :}
+                        ;
 
 //Statements
 stmnt::= 
         stmntComandos PUNTOCOMA
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         |stmntCompuesto
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         |stmntSeleccion
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         |stmntIteracion
-        |stmntExpresion 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
+        |stmntExpresion
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         |stmntSalto
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         |PUNTOCOMA
+        {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+        :}
         | error PUNTOCOMA 
         ;
 
-
-//Constante
-constante ::=  INTEGER:f          {:System.out.println("Numero: " + f.toString());:}
-                | CONSTCHAR;
-
 //Comandos printf y scanf
 stmntComandos::= PRINTF  LPAR CONSTSTRING RPAR
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         | PRINTF LPAR CONSTSTRING COMMA listaIdentificadores RPAR 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         | SCANF LPAR CONSTSTRING COMMA APUNTADORVAR RPAR 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         ;
 
 //Statement Compuesto
 stmntCompuesto ::= IZQLLAVE listaBloques DERLLAVE
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     | IZQLLAVE DERLLAVE
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     ;
 
 //Lista Bloques
 listaBloques ::= itemBloque
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | itemBloque listaBloques
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 //Item Bloque
 itemBloque ::= stmnt
-                |declaraciones
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
+                |declaracion
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 //Statement Seleccion
 stmntSeleccion ::= IF LPAR expresion RPAR stmnt 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     |  IF LPAR expresion RPAR stmnt ELSE stmnt 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     ;   
 
 //Statement Iteracion
 stmntIteracion ::= WHILE LPAR expresion RPAR stmnt
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     | FOR LPAR exprAsignacion PUNTOCOMA expresion PUNTOCOMA ID:k AUTOINCREMENTOS RPAR stmnt {:System.out.println("FOR (" + k);:}
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     | FOR LPAR declaracion expresion PUNTOCOMA  ID AUTOINCREMENTOS RPAR stmnt
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                     ;
 
 //Statement Salto
 stmntSalto ::= 
                 BREAK PUNTOCOMA {:System.out.println("BREAK;");:}
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 |RETURN expresion PUNTOCOMA 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 |RETURN PUNTOCOMA
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 // Statement Expresion
-stmntExpresion ::=  expresion PUNTOCOMA;
+stmntExpresion ::=  expresion PUNTOCOMA
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
+                ;
 
 /*Consultar AND y OR*/
 //Expresion
 expresion ::= 
                 exprSimple
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | exprRelacional
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | condicion OPLOGIC:op condicion {:System.out.println("OPLOGIC: " + op);:}
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | exprAsignacion
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | ID AUTOINCREMENTOS
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 
 //ExpresionAsignacion
-exprAsignacion ::= ID:i ASIGNACION expresion       {:System.out.print(i);:}
+exprAsignacion ::= ID ASIGNACION expresion
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | ID ASIGNACION  APUNTADORVAR
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
            ;
 
 condicion ::= exprSimple 
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 | exprRelacional
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
                 ;
 
 //Expresion Relacional
-exprRelacional::= exprSimple OPREL exprSimple;
+exprRelacional::= exprSimple OPREL exprSimple
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
+                ;
 //exprSimple
 exprSimple ::= termino
+               {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+               :} 
         | exprSimple OPSUM termino
+                {:
+                Nodo nodo = new Nodo();
+                nodo.setEtiqueta("CONSTANTE");
+                nodo.setID(parser.cont_Nodos);
+                parser.cont_Nodos++;
+                :}
         ;
 termino ::= operando
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("CONSTANTE");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                :}
                 | termino OPMULT operando
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("CONSTANTE");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                :}
                 ;
 //Operando
-operando ::= ID:a                  {:System.out.println("ID operador" + a);:}
-        | constante
-        | LPAR expresion RPAR
-        |llamadoFunc
-        ;
+operando ::=    ID:id
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("OPERANDO");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    
+                    //Terminal ID
+                    Nodo identificador = new Nodo();
+                    identificador.setEtiqueta("ID");
+                    identificador.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    identificador.setValor(id);
+                    nodo.addHijos((Nodo)identificador);
+                    RESULT = nodo;
+                :}
+                | constante:_const  
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("OPERANDO");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    nodo.addHijos((Nodo)_const);
+                    RESULT = nodo;
+                :}
+                | LPAR expresion:e RPAR
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("OPERANDO");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+
+                    nodo.addHijos((Nodo)e);
+                    RESULT = nodo;
+                :}
+                |llamadoFunc:lf
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("CONSTANTE");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+
+                    nodo.addHijos((Nodo)lf);
+                    RESULT = nodo;
+                :}
+                ;
+//Constante
+constante ::=  INTEGER:i
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("CONSTANTE");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+
+                    //terminal INTEGER, numero
+                    Nodo entero = new Nodo();
+                    entero.setEtiqueta("INT");
+                    entero.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    entero.setValor(i);
+                    nodo.addHijos(entero);
+                    RESULT = nodo;
+                :}
+                | CONSTCHAR:c
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("CONSTANTE");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+
+                    //terminal CHAR
+                    Nodo caracter = new Nodo();
+                    caracter.setEtiqueta("CHAR");
+                    caracter.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    caracter.setValor(c);
+                    nodo.addHijos(caracter);
+                    RESULT = nodo;`
+                :};
 //Statement Funcion
-llamadoFunc ::= ID LPAR RPAR
-                |ID LPAR  listaIdentificadores RPAR 
+llamadoFunc ::= 
+                ID:id LPAR RPAR
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("LLAMADA A FUNCION");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    
+                    //Terminal ID
+                    Nodo identificador = new Nodo();
+                    identificador.setEtiqueta("ID");
+                    identificador.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    identificador.setValor(id);
+                    nodo.addHijos(identificador);
+                    RESULT = nodo;
+                :}
+                |ID:id LPAR  listaIdentificadores:li RPAR 
+                {:
+                    Nodo nodo = new Nodo();
+                    nodo.setEtiqueta("LLAMADA A FUNCION");
+                    nodo.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    
+                    //Terminal ID
+                    Nodo identificador = new Nodo();
+                    identificador.setEtiqueta("ID");
+                    identificador.setID(parser.cont_Nodos);
+                    parser.cont_Nodos++;
+                    identificador.setValor(id);
+                    
+                    nodo.addHijos(identificador);
+                    nodo.addHijos((Nodo)li);
+                    RESULT = nodo;
+                :}
                 ;
 /*
-//Operador Condicional/*
-//exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
-  //              ;
+//Operador Condicional
+exprCondicional ::= LPAR expresion RPAR SINTERROGACION expresion DOBLEPUNTOS expresion
+                ;
 */
 //Lista Subprogramas
 subprogramas::= subprograma COMMA subprogramas
+                
                 | subprograma
+                
                 ;
 
 //subprograma
