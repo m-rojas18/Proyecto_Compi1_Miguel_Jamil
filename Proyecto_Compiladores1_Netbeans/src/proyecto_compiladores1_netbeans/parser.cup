@@ -1,3 +1,4 @@
+package proyecto_compiladores1_netbeans;
 import java_cup.runtime.*;
 import java.util.*;
 import java_cup.runtime.Symbol;
